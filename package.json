@@ -1,0 +1,31 @@
+{
+    "name": "accessible-theme",
+    "displayName": "Accessible Theme",
+    "description": "It's the best theme for you.💪",
+    "version": "0.1.0",
+	"publisher": "xbg",
+	"license": "MIT",
+    "engines": {
+        "vscode": "^1.66.0"
+    },
+    "categories": [
+        "Themes"
+    ],
+	"extensionKind": [
+		"ui",
+		"workspace"
+	],
+    "contributes": {
+        "themes": [
+            {
+                "label": "Accessible Theme",
+                "uiTheme": "vs-dark",
+                "path": "./themes/Accessible.json"
+            }
+        ]
+    },
+	"keywords": [
+		"accessible",
+		"accessibletheme"
+	]
+}
