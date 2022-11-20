@@ -1,37 +1,45 @@
 {
-	"name": "barrier-free-theme",
-	"displayName": "Barrier-Free Theme",
-	"description": "It's the best theme for you.💪",
-	"version": "0.1.3",
-	"publisher": "xbg",
-	"license": "MIT",
-	"engines": {
-		"vscode": "^1.8.0"
+    "name": "barrier-free-theme",
+    "displayName": "Barrier-Free Theme",
+    "description": "It's the best theme for you.💪",
+    "version": "0.1.4",
+    "publisher": "xbg",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/xbg0/Barrier-Free-Theme/issues"
+    },
+    "repository": "https://github.com/xbg0/Barrier-Free-Theme",
+    "engines": {
+        "vscode": "^1.8.0"
+    },
+    "categories": [
+        "Themes"
+    ],
+    "extensionKind": [
+        "ui",
+        "workspace"
+    ],
+    "contributes": {
+        "themes": [
+            {
+                "label": "Barrier-Free Theme",
+                "uiTheme": "vs-dark",
+                "path": "./themes/Barrier-Free Theme.json"
+            }
+        ]
+    },
+    "keywords": [
+        "barrier free",
+        "barrier-free theme"
+    ],
+	"galleryBanner": {
+		"color": "#252A32",
+		"theme": "dark"
 	},
-	"categories": [
-		"Themes"
-	],
-	"extensionKind": [
-		"ui",
-		"workspace"
-	],
-	"contributes": {
-		"themes": [
-			{
-				"label": "Barrier-Free Theme",
-				"uiTheme": "vs-dark",
-				"path": "./themes/Barrier-Free Theme.json"
-			}
-		]
-	},
-	"keywords": [
-		"barrier free",
-		"barrier-free theme"
-	],
-	"__metadata": {
-		"id": "e95b700c-99cc-4a01-91aa-90e92a09bdd9",
-		"publisherDisplayName": "小饼干",
-		"publisherId": "04fd8aee-543e-4679-90f3-b0eb5c50791d",
-		"isPreReleaseVersion": false
-	}
+    "__metadata": {
+        "id": "e95b700c-99cc-4a01-91aa-90e92a09bdd9",
+        "publisherDisplayName": "小饼干",
+        "publisherId": "04fd8aee-543e-4679-90f3-b0eb5c50791d",
+        "isPreReleaseVersion": false
+    }
 }
