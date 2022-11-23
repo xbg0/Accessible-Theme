@@ -2,7 +2,7 @@
     "name": "barrier-free-theme",
     "displayName": "Barrier-Free Theme",
     "description": "It's the best theme for you.💪",
-    "version": "0.1.5",
+    "version": "0.1.6",
     "publisher": "xbg",
     "license": "MIT",
     "bugs": {
@@ -32,10 +32,10 @@
         "barrier free",
         "barrier-free theme"
     ],
-	"galleryBanner": {
-		"color": "#252A32",
-		"theme": "dark"
-	},
+    "galleryBanner": {
+        "color": "#252A32",
+        "theme": "dark"
+    },
     "__metadata": {
         "id": "e95b700c-99cc-4a01-91aa-90e92a09bdd9",
         "publisherDisplayName": "小饼干",
