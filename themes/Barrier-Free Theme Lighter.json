@@ -38,6 +38,8 @@
         "dropdown.background": "#323842",
         "dropdown.listBackground": "#323842",
         "dropdown.foreground": "#A8B4BC",
+        "descriptionForeground": "#A8B4BCE0",
+        "disabledForeground": "#A8B4BCE0",
         "editor.background": "#252A32",
         "editor.foreground": "#A8B4BC",
         "editor.foldBackground": "#A8B4BC18",
