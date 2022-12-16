@@ -2,7 +2,7 @@
     "name": "barrier-free-theme",
     "displayName": "Barrier-Free Theme",
     "description": "It's the best theme for you.💪",
-    "version": "0.2.2",
+    "version": "0.2.3",
     "publisher": "xbg",
     "license": "MIT",
     "bugs": {
@@ -22,14 +22,14 @@
     "contributes": {
         "themes": [
             {
-                "label": "Barrier-Free Theme",
+                "label": "Barrier-Free Theme - Sunset",
                 "uiTheme": "vs-dark",
-                "path": "./themes/Barrier-Free Theme.json"
+                "path": "./themes/Barrier-Free Theme Sunset.json"
             },
             {
-                "label": "Barrier-Free Theme Lighter",
+                "label": "Barrier-Free Theme - Midnight",
                 "uiTheme": "vs-dark",
-                "path": "./themes/Barrier-Free Theme Lighter.json"
+                "path": "./themes/Barrier-Free Theme Midnight.json"
             }
         ]
     },
