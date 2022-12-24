@@ -24,12 +24,12 @@
             {
                 "label": "Barrier-Free Theme - Galaxy",
                 "uiTheme": "vs-dark",
-                "path": "./themes/Barrier-Free Theme Galaxy.json"
+                "path": "./themes/Galaxy.json"
             },
             {
                 "label": "Barrier-Free Theme - Midnight",
                 "uiTheme": "vs-dark",
-                "path": "./themes/Barrier-Free Theme Midnight.json"
+                "path": "./themes/Midnight.json"
             }
         ]
     },
