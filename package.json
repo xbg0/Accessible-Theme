@@ -22,9 +22,9 @@
     "contributes": {
         "themes": [
             {
-                "label": "Barrier-Free Theme - Sunset",
+                "label": "Barrier-Free Theme - Galaxy",
                 "uiTheme": "vs-dark",
-                "path": "./themes/Barrier-Free Theme Sunset.json"
+                "path": "./themes/Barrier-Free Theme Galaxy.json"
             },
             {
                 "label": "Barrier-Free Theme - Midnight",
