@@ -2,7 +2,7 @@
     "name": "barrier-free-theme",
     "displayName": "Barrier-Free Theme",
     "description": "It's the best theme for you.💪",
-    "version": "0.2.3",
+    "version": "0.2.4",
     "publisher": "xbg",
     "license": "MIT",
     "bugs": {
@@ -10,8 +10,10 @@
     },
     "repository": "https://github.com/xbg0/Barrier-Free-Theme",
     "engines": {
-        "vscode": "^1.8.0"
+        "vscode": "^1.74.0"
     },
+	"main": "./out/extension.js",
+	"activationEvents": [],
     "categories": [
         "Themes"
     ],
@@ -31,7 +33,30 @@
                 "uiTheme": "vs-dark",
                 "path": "./themes/Midnight.json"
             }
-        ]
+        ],
+        "commands": [
+            {
+                "command": "extension.helloWorld",
+                "title": "Hello World"
+            }
+        ],
+        "configuration": {
+            "title": "Barrier-Free Theme",
+            "properties": {
+                "barrier-free-theme.useCodeSnippetsOnMethodSuggest.enable": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Complete functions with their parameter signature."
+                }
+            }
+        },
+        "configurationDefaults": {
+            "editor.foldingHighlight": false,
+            "editor.hideCursorInOverviewRuler": true,
+            "editor.scrollbar.verticalScrollbarSize": 24,
+            "editor.smoothScrolling": true,
+            "workbench.list.smoothScrolling": true
+        }
     },
     "keywords": [
         "barrier free",
@@ -40,6 +65,20 @@
     "galleryBanner": {
         "color": "#252A32",
         "theme": "dark"
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "lint": "eslint \"src/**/*.ts\"",
+        "watch": "tsc -watch -p ./"
+    },
+    "devDependencies": {
+        "@types/node": "^16.11.7",
+        "@types/vscode": "^1.74.0",
+        "@typescript-eslint/eslint-plugin": "^5.42.0",
+        "@typescript-eslint/parser": "^5.42.0",
+        "eslint": "^8.26.0",
+        "typescript": "^4.8.4"
     },
     "__metadata": {
         "id": "e95b700c-99cc-4a01-91aa-90e92a09bdd9",
