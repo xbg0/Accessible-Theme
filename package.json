@@ -12,10 +12,13 @@
     "engines": {
         "vscode": "^1.74.0"
     },
-	"main": "./out/extension.js",
-	"activationEvents": [],
+    "main": "./out/extension.js",
+    "activationEvents": [
+        "onStartupFinished"
+    ],
     "categories": [
-        "Themes"
+        "Themes",
+        "Other"
     ],
     "extensionKind": [
         "ui",
@@ -43,19 +46,12 @@
         "configuration": {
             "title": "Barrier-Free Theme",
             "properties": {
-                "barrier-free-theme.useCodeSnippetsOnMethodSuggest.enable": {
+                "barrier-free-theme.optimalSettings.enable": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Complete functions with their parameter signature."
+                    "description": "Make it better"
                 }
             }
-        },
-        "configurationDefaults": {
-            "editor.foldingHighlight": false,
-            "editor.hideCursorInOverviewRuler": true,
-            "editor.scrollbar.verticalScrollbarSize": 24,
-            "editor.smoothScrolling": true,
-            "workbench.list.smoothScrolling": true
         }
     },
     "keywords": [
