@@ -37,19 +37,23 @@
                 "path": "./themes/Midnight.json"
             }
         ],
-        "commands": [
-            {
-                "command": "extension.helloWorld",
-                "title": "Hello World"
-            }
-        ],
         "configuration": {
             "title": "Barrier-Free Theme",
             "properties": {
-                "barrier-free-theme.optimalSettings.enable": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Make it better"
+                "barrier-free-theme.optimalSettings": {
+                    "type": "string",
+                    "default": "off",
+                    "enum": [
+                        "off",
+                        "on",
+                        "advance"
+                    ],
+                    "enumDescriptions": [
+                        "Undo the settings",
+                        "Apply basic settings only",
+                        "For advanced users"
+                    ],
+                    "description": "Add some options to the settings file"
                 }
             }
         }

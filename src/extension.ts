@@ -1,17 +1,31 @@
 import * as vscode from 'vscode'
 
-const storageKey = 'xbg.barrier-free-theme'
-const settingKey = 'barrier-free-theme.optimalSettings.enable'
+const storageKey = 'barrier-free-theme.settings'
+const settingKey = 'barrier-free-theme.optimalSettings'
+const baseSettings = '0'
+const advancedSettings = '1'
 
-const optimalSettings = new Map(
-    Object.entries({
-        'editor.foldingHighlight': false,
-        'editor.hideCursorInOverviewRuler': true,
-        'editor.scrollbar.verticalScrollbarSize': 24,
-        'editor.smoothScrolling': true,
-        'workbench.list.smoothScrolling': true
-    })
-)
+const optimalSettings: { [propName: string]: Map<string, any> } = {
+    [baseSettings]: new Map(
+        Object.entries({
+            'editor.foldingHighlight': false,
+            'editor.hideCursorInOverviewRuler': true,
+            'editor.scrollbar.verticalScrollbarSize': 24,
+            'editor.smoothScrolling': true,
+            'workbench.list.smoothScrolling': true
+        })
+    ),
+    [advancedSettings]: new Map(
+        Object.entries({
+            'editor.foldingHighlight': false,
+            'editor.hideCursorInOverviewRuler': true,
+            'editor.scrollbar.verticalScrollbarSize': 24,
+            'editor.smoothScrolling': true,
+            'workbench.list.smoothScrolling': true,
+            'breadcrumbs.enabled': false
+        })
+    )
+}
 
 const defaultSettings = new Map(
     Object.entries({
@@ -19,95 +33,181 @@ const defaultSettings = new Map(
         'editor.hideCursorInOverviewRuler': false,
         'editor.scrollbar.verticalScrollbarSize': 14,
         'editor.smoothScrolling': false,
-        'workbench.list.smoothScrolling': false
+        'workbench.list.smoothScrolling': false,
+        'breadcrumbs.enabled': true
     })
 )
 
-function getConfig() {
-    return vscode.workspace.getConfiguration()
+interface Controller {
+    globalState: vscode.Memento | null
+    init(context: vscode.ExtensionContext): void
+    getConfig(key: string): any
+    getSettings(type: string): Map<string, any>
+    getUserSettings(
+        keys: Set<string> | IterableIterator<string>
+    ): Map<string, any>
+    getCacheSettings(): { settings: Set<string>; type: string | null }
+    computeMountSettings(
+        settings: Map<string, any>,
+        userSettings: Map<string, any>,
+        cacheSettings: Set<string>
+    ): Set<string>
+    computeUnmountSettings(
+        settings: Map<string, any>,
+        userSettings: Map<string, any>
+    ): Set<string>
+    updateUserSettings(
+        settings: Map<string, any>,
+        keys: Set<string>,
+        override?: boolean
+    ): void
+    updateCacheSettings(object: { settings: Set<string>; type: string }): void
+    mount(type: string): void
+    unmount(): void
+    entrance(): void
+    cleanStorage(): void
 }
 
-function enter(globalState: vscode.Memento) {
-    const config = getConfig()
-    if (config.get(settingKey)) {
-        cleanStorage(globalState)
-        mount(config, globalState)
-    } else {
-        unmount(config, globalState)
-    }
-}
+const Controller: Controller = {
+    globalState: null,
 
-function cleanStorage(globalState: vscode.Memento) {
-    globalState.update(storageKey, undefined)
-}
+    init(context) {
+        this.globalState = context.globalState
+        console.log('Initialized')
+    },
 
-function mount(
-    config: vscode.WorkspaceConfiguration,
-    globalState: vscode.Memento
-) {
-    const used = applySetting(config)
-    if (used) {
-        globalState.update(storageKey, JSON.stringify([...used]))
-    }
-    console.log(1, used)
-}
+    getConfig(key) {
+        return vscode.workspace.getConfiguration().get(key)
+    },
 
-function unmount(
-    config: vscode.WorkspaceConfiguration,
-    globalState: vscode.Memento
-) {
-    const used: string | undefined = globalState.get(storageKey)
-    if (used) {
-        repealSetting(config, JSON.parse(used))
-        cleanStorage(globalState)
-    }
-    console.log(2, used)
-}
+    getSettings(type) {
+        return optimalSettings[type]
+    },
 
-function applySetting(
-    config: vscode.WorkspaceConfiguration
-): Set<string> | undefined {
-    const used: Set<string> = new Set()
-    for (const [key, value] of optimalSettings) {
-        if (config.get(key) === defaultSettings.get(key)) {
-            used.add(key)
-            config.update(key, value, vscode.ConfigurationTarget.Global)
+    getUserSettings(keys) {
+        const result = new Map()
+        for (const key of keys) {
+            result.set(key, this.getConfig(key))
         }
-    }
-    return used.size === 0 ? undefined : used
-}
+        return result
+    },
 
-function repealSetting(
-    config: vscode.WorkspaceConfiguration,
-    used: Set<string>
-) {
-    for (const key of used) {
-        if (config.get(key) === optimalSettings.get(key)) {
-            config.update(key, undefined, vscode.ConfigurationTarget.Global)
+    getCacheSettings() {
+        const cache: string | undefined = this.globalState?.get(storageKey)
+        if (cache) {
+            const { settings, type } = JSON.parse(cache)
+            return { settings: JSON.parse(settings), type }
+        } else {
+            return { settings: new Set(), type: null }
         }
-    }
-}
+    },
 
-function init(context: vscode.ExtensionContext) {
-    context.globalState.setKeysForSync([storageKey])
+    computeMountSettings(settings, userSettings, cacheSettings) {
+        const result: Set<string> = new Set()
+        for (const [key] of settings) {
+            if (
+                !cacheSettings.has(key) &&
+                userSettings.get(key) === defaultSettings.get(key)
+            ) {
+                result.add(key)
+            }
+        }
+        return result
+    },
+
+    computeUnmountSettings(settings, userSettings) {
+        const result: Set<string> = new Set()
+        for (const [key, value] of userSettings) {
+            if (settings.get(key) === value) {
+                result.add(key)
+            }
+        }
+        return result
+    },
+
+    updateUserSettings(settings, keys, override) {
+        for (const key of keys) {
+            vscode.workspace
+                .getConfiguration()
+                .update(
+                    key,
+                    override ? undefined : settings.get(key),
+                    vscode.ConfigurationTarget.Global
+                )
+        }
+    },
+
+    updateCacheSettings({ settings, type }) {
+        this.globalState?.update(
+            storageKey,
+            JSON.stringify({ settings: JSON.stringify([...settings]), type })
+        )
+    },
+
+    mount(type) {
+        const settings = this.getSettings(type)
+        const userSettings = this.getUserSettings(settings.keys())
+        const cacheSettings = this.getCacheSettings().settings
+        const keys: Set<string> = this.computeMountSettings(
+            settings,
+            userSettings,
+            cacheSettings
+        )
+
+        if (keys.size > 0) {
+            this.updateUserSettings(settings, keys)
+            this.updateCacheSettings({ settings: keys, type })
+        }
+        console.log('Mounted')
+    },
+
+    unmount() {
+        const { settings: cacheSettings, type } = this.getCacheSettings()
+
+        if (type) {
+            const settings = this.getSettings(type)
+            const userSettings = this.getUserSettings(cacheSettings)
+            const keys: Set<string> = this.computeUnmountSettings(
+                settings,
+                userSettings
+            )
+
+            if (keys.size > 0) {
+                this.updateUserSettings(defaultSettings, keys, true)
+                this.cleanStorage()
+            }
+        }
+
+        console.log('Unmounted')
+    },
+
+    entrance() {
+        const config = this.getConfig(settingKey)
+        switch (config) {
+            case 'off':
+                this.unmount()
+                break
+            case 'on':
+                this.mount(baseSettings)
+                break
+            case 'advance':
+                this.mount(advancedSettings)
+                break
+        }
+    },
+
+    cleanStorage() {
+        this.globalState?.update(storageKey, undefined)
+    }
 }
 
 export function activate(context: vscode.ExtensionContext) {
-    init(context)
-    enter(context.globalState)
-    const disposable = [
-        // vscode.commands.registerCommand('extension.helloWorld', enter),
+    Controller.init(context)
+    context.subscriptions.push(
         vscode.workspace.onDidChangeConfiguration(e => {
             if (e.affectsConfiguration(settingKey)) {
-                enter(context.globalState)
+                Controller.entrance()
             }
         })
-    ]
-
-    context.subscriptions.push(...disposable)
-}
-
-export function deactivate(context: vscode.ExtensionContext) {
-    console.log(3)
-    unmount(getConfig(), context.globalState)
+    )
 }
