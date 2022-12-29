@@ -2,7 +2,7 @@
     "name": "barrier-free-theme",
     "displayName": "Barrier-Free Theme",
     "description": "It's the best theme for you.💪",
-    "version": "0.2.4",
+    "version": "0.3.0",
     "publisher": "xbg",
     "license": "MIT",
     "bugs": {
@@ -40,7 +40,7 @@
         "configuration": {
             "title": "Barrier-Free Theme",
             "properties": {
-                "barrier-free-theme.optimalSettings": {
+                "barrier-free-theme.experienceMode": {
                     "type": "string",
                     "default": "off",
                     "enum": [
@@ -49,16 +49,19 @@
                         "advance"
                     ],
                     "enumDescriptions": [
-                        "Undo the settings",
+                        "Undo the settings and your custom values will be retained",
                         "Apply basic settings only",
-                        "For advanced users"
+                        "More settings"
                     ],
-                    "description": "Add some options to the settings file"
+                    "description": "Add some options to your settings file"
                 }
             }
         }
     },
     "keywords": [
+        "experience mode",
+        "better mode",
+        "optimize settings",
         "barrier free",
         "barrier-free theme"
     ],

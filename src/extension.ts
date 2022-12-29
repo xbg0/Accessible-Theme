@@ -1,12 +1,12 @@
 import * as vscode from 'vscode'
 
-const storageKey = 'barrier-free-theme.settings'
-const settingKey = 'barrier-free-theme.optimalSettings'
-const baseSettings = '0'
-const advancedSettings = '1'
+const StorageKeyOptimalSetting = 'barrier-free-theme.experienceMode'
+const SettingKeyOptimalSetting = 'barrier-free-theme.experienceMode'
+const BasicSettings = '0'
+const AdvancedSettings = '1'
 
 const optimalSettings: { [propName: string]: Map<string, any> } = {
-    [baseSettings]: new Map(
+    [BasicSettings]: new Map(
         Object.entries({
             'editor.foldingHighlight': false,
             'editor.hideCursorInOverviewRuler': true,
@@ -15,28 +15,18 @@ const optimalSettings: { [propName: string]: Map<string, any> } = {
             'workbench.list.smoothScrolling': true
         })
     ),
-    [advancedSettings]: new Map(
+    [AdvancedSettings]: new Map(
         Object.entries({
+            'breadcrumbs.enabled': false,
+            "editor.minimap.enabled": false,
             'editor.foldingHighlight': false,
             'editor.hideCursorInOverviewRuler': true,
             'editor.scrollbar.verticalScrollbarSize': 24,
             'editor.smoothScrolling': true,
-            'workbench.list.smoothScrolling': true,
-            'breadcrumbs.enabled': false
+            'workbench.list.smoothScrolling': true
         })
     )
 }
-
-const defaultSettings = new Map(
-    Object.entries({
-        'editor.foldingHighlight': true,
-        'editor.hideCursorInOverviewRuler': false,
-        'editor.scrollbar.verticalScrollbarSize': 14,
-        'editor.smoothScrolling': false,
-        'workbench.list.smoothScrolling': false,
-        'breadcrumbs.enabled': true
-    })
-)
 
 interface Controller {
     globalState: vscode.Memento | null
@@ -46,26 +36,18 @@ interface Controller {
     getUserSettings(
         keys: Set<string> | IterableIterator<string>
     ): Map<string, any>
-    getCacheSettings(): { settings: Set<string>; type: string | null }
-    computeMountSettings(
-        settings: Map<string, any>,
-        userSettings: Map<string, any>,
-        cacheSettings: Set<string>
-    ): Set<string>
-    computeUnmountSettings(
-        settings: Map<string, any>,
-        userSettings: Map<string, any>
-    ): Set<string>
-    updateUserSettings(
-        settings: Map<string, any>,
-        keys: Set<string>,
-        override?: boolean
-    ): void
-    updateCacheSettings(object: { settings: Set<string>; type: string }): void
+    getGlobalStorage(key: string): string | undefined
+    isChangedSetting(key: string): boolean
+    computeMountSettings(settings: Map<string, any>): {
+        changes: Map<string, any>
+        cacheSettings: Map<string, any>
+    }
+    computeUnmountSettings(): Map<string, any>
+    updateUserSettings(settings: Map<string, any>): Promise<void>
+    updateGlobalStorage(key: string, value?: string): Promise<void>
     mount(type: string): void
     unmount(): void
     entrance(): void
-    cleanStorage(): void
 }
 
 const Controller: Controller = {
@@ -92,112 +74,160 @@ const Controller: Controller = {
         return result
     },
 
-    getCacheSettings() {
-        const cache: string | undefined = this.globalState?.get(storageKey)
-        if (cache) {
-            const { settings, type } = JSON.parse(cache)
-            return { settings: JSON.parse(settings), type }
-        } else {
-            return { settings: new Set(), type: null }
-        }
+    getGlobalStorage(key) {
+        return this.globalState?.get(key)
     },
 
-    computeMountSettings(settings, userSettings, cacheSettings) {
-        const result: Set<string> = new Set()
-        for (const [key] of settings) {
-            if (
-                !cacheSettings.has(key) &&
-                userSettings.get(key) === defaultSettings.get(key)
-            ) {
-                result.add(key)
-            }
-        }
-        return result
-    },
-
-    computeUnmountSettings(settings, userSettings) {
-        const result: Set<string> = new Set()
-        for (const [key, value] of userSettings) {
-            if (settings.get(key) === value) {
-                result.add(key)
-            }
-        }
-        return result
-    },
-
-    updateUserSettings(settings, keys, override) {
-        for (const key of keys) {
-            vscode.workspace
-                .getConfiguration()
-                .update(
-                    key,
-                    override ? undefined : settings.get(key),
-                    vscode.ConfigurationTarget.Global
-                )
-        }
-    },
-
-    updateCacheSettings({ settings, type }) {
-        this.globalState?.update(
-            storageKey,
-            JSON.stringify({ settings: JSON.stringify([...settings]), type })
+    isChangedSetting(key) {
+        return (
+            vscode.workspace.getConfiguration().inspect(key)?.globalValue !==
+            undefined
         )
+    },
+
+    computeMountSettings(settings) {
+        const cache = this.getGlobalStorage(StorageKeyOptimalSetting)
+        const cacheSettings: Map<string, any> = new Map(
+            cache && JSON.parse(cache)
+        )
+        const changes = new Map()
+
+        for (const [key, value] of settings) {
+            if (cacheSettings.has(key)) {
+                const cacheValue = cacheSettings.get(key)
+                if (
+                    value !== cacheValue &&
+                    this.getConfig(key) === cacheValue
+                ) {
+                    changes.set(key, value)
+                    cacheSettings.set(key, value)
+                }
+            } else {
+                if (!this.isChangedSetting(key)) {
+                    changes.set(key, value)
+                    cacheSettings.set(key, value)
+                }
+            }
+        }
+
+        for (const [key, value] of cacheSettings) {
+            if (!settings.has(key)) {
+                if (this.getConfig(key) === value) {
+                    changes.set(key, undefined)
+                }
+                cacheSettings.delete(key)
+            }
+        }
+
+        return { changes, cacheSettings }
+    },
+
+    computeUnmountSettings() {
+        const cache = this.getGlobalStorage(StorageKeyOptimalSetting)
+        const changes = new Map()
+
+        if (cache) {
+            const cacheSettings: Map<string, any> = new Map(JSON.parse(cache))
+
+            for (const [key, value] of cacheSettings) {
+                if (this.getConfig(key) === value) {
+                    changes.set(key, undefined)
+                }
+            }
+        }
+
+        return changes
+    },
+
+    async updateUserSettings(settings) {
+        const config = vscode.workspace.getConfiguration()
+
+        for (const [key, value] of settings) {
+            await config.update(key, value, true)
+        }
+    },
+
+    async updateGlobalStorage(key, value) {
+        await this.globalState?.update(key, value)
     },
 
     mount(type) {
         const settings = this.getSettings(type)
-        const userSettings = this.getUserSettings(settings.keys())
-        const cacheSettings = this.getCacheSettings().settings
-        const keys: Set<string> = this.computeMountSettings(
-            settings,
-            userSettings,
-            cacheSettings
-        )
+        const { changes, cacheSettings } = this.computeMountSettings(settings)
 
-        if (keys.size > 0) {
-            this.updateUserSettings(settings, keys)
-            this.updateCacheSettings({ settings: keys, type })
+        if (changes.size > 0) {
+            this.updateUserSettings(changes).then(
+                () => {
+                    console.log('Update succeeded!')
+                },
+                message => {
+                    vscode.window.showErrorMessage(message)
+                    console.log('Update failed: ', message)
+                }
+            )
+            // Write storage by default, Because updating user's setting.json file is unstable
+            this.updateGlobalStorage(
+                StorageKeyOptimalSetting,
+                JSON.stringify([...cacheSettings])
+            ).then(
+                () => {
+                    console.log(
+                        'Mounted, ',
+                        'Data: ',
+                        this.getGlobalStorage(StorageKeyOptimalSetting)
+                    )
+                },
+                message => {
+                    vscode.window.showErrorMessage(message)
+                    console.log('Mount failed: ', message)
+                }
+            )
         }
-        console.log('Mounted')
     },
 
     unmount() {
-        const { settings: cacheSettings, type } = this.getCacheSettings()
+        const changes = this.computeUnmountSettings()
 
-        if (type) {
-            const settings = this.getSettings(type)
-            const userSettings = this.getUserSettings(cacheSettings)
-            const keys: Set<string> = this.computeUnmountSettings(
-                settings,
-                userSettings
+        if (changes.size > 0) {
+            this.updateUserSettings(changes).then(
+                () => {
+                    console.log('Update succeeded!')
+                },
+                message => {
+                    vscode.window.showErrorMessage(message)
+                    console.log('Update failed: ', message)
+                }
             )
-
-            if (keys.size > 0) {
-                this.updateUserSettings(defaultSettings, keys, true)
-                this.cleanStorage()
-            }
+            this.updateGlobalStorage(StorageKeyOptimalSetting).then(
+                () => {
+                    console.log(
+                        'Unmounted, ',
+                        'Data: ',
+                        this.getGlobalStorage(StorageKeyOptimalSetting)
+                    )
+                },
+                message => {
+                    vscode.window.showErrorMessage(message)
+                    console.log('Unmount failed: ', message)
+                }
+            )
         }
-
-        console.log('Unmounted')
     },
 
     entrance() {
-        const config = this.getConfig(settingKey)
-        switch (config) {
+        const optimalSettingMode = this.getConfig(SettingKeyOptimalSetting)
+
+        switch (optimalSettingMode) {
             case 'off':
                 this.unmount()
                 break
             case 'on':
-                this.mount(baseSettings)
+                this.mount(BasicSettings)
                 break
             case 'advance':
-                this.mount(advancedSettings)
+                this.mount(AdvancedSettings)
                 break
         }
-    },
-
-    cleanStorage() {
-        this.globalState?.update(storageKey, undefined)
     }
 }
 
@@ -205,9 +235,14 @@ export function activate(context: vscode.ExtensionContext) {
     Controller.init(context)
     context.subscriptions.push(
         vscode.workspace.onDidChangeConfiguration(e => {
-            if (e.affectsConfiguration(settingKey)) {
+            if (e.affectsConfiguration(SettingKeyOptimalSetting)) {
                 Controller.entrance()
             }
         })
     )
+}
+
+export function deactivate() {
+    Controller.unmount()
+    console.log('Deactivated')
 }
