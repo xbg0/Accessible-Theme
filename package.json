@@ -1,18 +1,29 @@
 {
     "name": "barrier-free-theme",
     "displayName": "Barrier-Free Theme",
-    "description": "It's the best theme for you.💪",
-    "version": "0.3.0",
+    "description": "The best theme for you.💪",
+    "version": "0.3.1",
     "publisher": "xbg",
     "license": "MIT",
+    "author": "小饼干 <xbg0@qq.com> (https://github.com/xbg0)",
+    "contributors": [
+        "欢迎加入我们 / Welcome to join us",
+        "小饼干 <xbg0@qq.com> (https://github.com/xbg0)"
+    ],
     "bugs": {
-        "url": "https://github.com/xbg0/Barrier-Free-Theme/issues"
+        "url": "https://github.com/xbg0/Barrier-Free-Theme/issues",
+        "email": "xbg0@qq.com"
     },
-    "repository": "https://github.com/xbg0/Barrier-Free-Theme",
+    "homepage": "https://github.com/xbg0/Barrier-Free-Theme",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/xbg0/Barrier-Free-Theme.git"
+    },
     "engines": {
         "vscode": "^1.74.0"
     },
     "main": "./out/extension.js",
+    "browser": "./out/extension.js",
     "activationEvents": [
         "onStartupFinished"
     ],
@@ -27,18 +38,20 @@
     "contributes": {
         "themes": [
             {
-                "label": "Barrier-Free Theme - Galaxy",
+                "id": "Barrier-Free Theme - Galaxy",
+                "label": "%theme.galaxy%",
                 "uiTheme": "vs-dark",
                 "path": "./themes/Galaxy.json"
             },
             {
-                "label": "Barrier-Free Theme - Midnight",
+                "id": "Barrier-Free Theme - Midnight",
+                "label": "%theme.midnight%",
                 "uiTheme": "vs-dark",
                 "path": "./themes/Midnight.json"
             }
         ],
         "configuration": {
-            "title": "Barrier-Free Theme",
+            "title": "%configuration.title%",
             "properties": {
                 "barrier-free-theme.experienceMode": {
                     "type": "string",
@@ -48,20 +61,24 @@
                         "on",
                         "advance"
                     ],
-                    "enumDescriptions": [
-                        "Undo the settings and your custom values will be retained",
-                        "Apply basic settings only",
-                        "More settings"
+                    "enumItemLabels": [
+                        "%configuration.experienceMode.off.label%",
+                        "%configuration.experienceMode.on.label%",
+                        "%configuration.experienceMode.advance.label%"
                     ],
-                    "description": "Add some options to your settings file"
+                    "enumDescriptions": [
+                        "%configuration.experienceMode.off.description%",
+                        "%configuration.experienceMode.on.description%",
+                        "%configuration.experienceMode.advance.description%"
+                    ],
+                    "description": "%configuration.experienceMode.description%"
                 }
             }
         }
     },
     "keywords": [
-        "experience mode",
-        "better mode",
-        "optimize settings",
+        "无障碍",
+        "无障碍主题",
         "barrier free",
         "barrier-free theme"
     ],

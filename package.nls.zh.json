@@ -1,0 +1,12 @@
+{
+    "theme.galaxy": "无障碍主题 - 银河",
+    "theme.midnight": "无障碍主题 - 午夜",
+    "configuration.title": "无障碍主题",
+    "configuration.experienceMode.off.label": "关闭",
+    "configuration.experienceMode.off.description": "还原设置并保留你的自定义设置",
+    "configuration.experienceMode.on.label": "开启",
+    "configuration.experienceMode.on.description": "应用基础设置",
+    "configuration.experienceMode.advance.label": "高级",
+    "configuration.experienceMode.advance.description": "更多设置",
+    "configuration.experienceMode.description": "添加一些常用设置到你的配置文件中"
+}

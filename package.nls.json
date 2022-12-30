@@ -1,0 +1,12 @@
+{
+    "theme.galaxy": "Barrier-Free Theme - Galaxy",
+    "theme.midnight": "Barrier-Free Theme - Midnight",
+    "configuration.title": "Barrier-Free Theme",
+    "configuration.experienceMode.off.label": "Turn off",
+    "configuration.experienceMode.off.description": "Restore the settings and keep your custom settings",
+    "configuration.experienceMode.on.label": "Turn on",
+    "configuration.experienceMode.on.description": "Apply basic settings",
+    "configuration.experienceMode.advance.label": "Advance",
+    "configuration.experienceMode.advance.description": "More settings",
+    "configuration.experienceMode.description": "Add some common settings to your configuration file"
+}
