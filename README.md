@@ -3,6 +3,7 @@
 [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=xbg.barrier-free-theme)
 
 此主题围绕沉浸式体验设计。✨
+
 The themes are designed around an immersion experience. ✨
 
 Wish you like it 👏
@@ -23,4 +24,4 @@ Wish you like it 👏
 
 # License
 
-[MIT](./LICENSE) License © 2021-Present [小饼干](https://github.com/xbg0)
+[MIT](./LICENSE) License © 2022-Present [小饼干](https://github.com/xbg0)
