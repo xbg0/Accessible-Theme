@@ -2,13 +2,12 @@
     "name": "barrier-free-theme",
     "displayName": "Barrier-Free Theme",
     "description": "The best theme for you.💪",
-    "version": "0.3.1",
+    "version": "0.3.2",
     "publisher": "xbg",
     "license": "MIT",
-    "author": "小饼干 <xbg0@qq.com> (https://github.com/xbg0)",
+    "author": "小饼干 <https://github.com/xbg0>",
     "contributors": [
-        "欢迎加入我们 / Welcome to join us",
-        "小饼干 <xbg0@qq.com> (https://github.com/xbg0)"
+        "欢迎加入我们 / Welcome to join us"
     ],
     "bugs": {
         "url": "https://github.com/xbg0/Barrier-Free-Theme/issues",

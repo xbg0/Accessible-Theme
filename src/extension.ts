@@ -18,7 +18,7 @@ const optimalSettings: { [propName: string]: Map<string, any> } = {
     [AdvancedSettings]: new Map(
         Object.entries({
             'breadcrumbs.enabled': false,
-            "editor.minimap.enabled": false,
+            'editor.minimap.enabled': false,
             'editor.foldingHighlight': false,
             'editor.hideCursorInOverviewRuler': true,
             'editor.scrollbar.verticalScrollbarSize': 24,
