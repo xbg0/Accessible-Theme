@@ -71,6 +71,11 @@
                         "%configuration.experienceMode.advance.description%"
                     ],
                     "description": "%configuration.experienceMode.description%"
+                },
+                "barrier-free-theme.bold": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "设置部分代码为粗体"
                 }
             }
         }

@@ -87,41 +87,6 @@ const eventManager = {
                     const cache = cacheManager.getCache(item)
                     const cacheConfiguration: Map<string, any> = new Map(cache && JSON.parse(cache))
                     const configuration = configurationManager.getCustomConfiguration(configurationIndex)
-                    const changes = new Map()
-
-                    for (const [key, value] of configuration) {
-                        if (cacheConfiguration.has(key)) {
-                            const cacheValue = cacheConfiguration.get(key)
-                            if (value !== cacheValue && configurationManager.getUserConfiguration(key) === cacheValue) {
-                                changes.set(key, value)
-                                cacheConfiguration.set(key, value)
-                            }
-                        } else {
-                            if (configurationManager.checkConfigurationIsDefault(key)) {
-                                changes.set(key, value)
-                                cacheConfiguration.set(key, value)
-                            }
-                        }
-                    }
-
-                    for (const [key, value] of cacheConfiguration) {
-                        if (!configuration.has(key)) {
-                            if (configurationManager.getUserConfiguration(key) === value) {
-                                changes.set(key, undefined)
-                            }
-                            cacheConfiguration.delete(key)
-                        }
-                    }
-
-                    if (changes.size > 0) {
-                    }
-                }
-            },
-            mergeUserConfiguration2: {
-                method({ item, configurationIndex }) {
-                    const cache = cacheManager.getCache(item)
-                    const cacheConfiguration: Map<string, any> = new Map(cache && JSON.parse(cache))
-                    const configuration = configurationManager.getCustomConfiguration(configurationIndex)
                     const changes: object[] = []
 
                     for (const [section, value] of configuration) {
@@ -168,78 +133,131 @@ const eventManager = {
                     }
                 }
             },
-            setTextMateRules: {
+            mergeTextMateRules: {
                 method({ item, configurationIndex }) {
-                    // const cache = cacheManager.getCache(item)
-                    // const cacheConfiguration: Map<string, any> = new Map(cache && JSON.parse(cache))
                     const configuration = configurationManager.getCustomConfiguration(configurationIndex)
-                    // {
-                    //     'editor.tokenColorCustomizations': {
-                    //         textMateRules: [
-                    //             {
-                    //                 name: 'fontStyle bold',
-                    //                 scope: ['constant', 'entity.name.function'],
-                    //                 settings: {
-                    //                     fontStyle: 'bold'
-                    //                 }
-                    //             }
-                    //         ]
-                    //     }
-                    // }
-                    let changes = new Map()
                     const editorTokenColorCustomizations = configuration.get('editor.tokenColorCustomizations')
                     const userEditorTokenColorCustomizations = configurationManager.getUserConfiguration('editor.tokenColorCustomizations')
+                    const cacheScope: Set<string> = new Set(editorTokenColorCustomizations.textMateRules[0].scope)
+                    let changes: null | object = null
 
                     if (userEditorTokenColorCustomizations) {
-                        const userTextMateRules = userEditorTokenColorCustomizations.textMateRules
-                        const textMateRules = editorTokenColorCustomizations.textMateRules
+                        const textMateRules: { name: string; scope: string[]; settings: { fontStyle: string } }[] = editorTokenColorCustomizations.textMateRules
+                        const userTextMateRules: { name: string; scope: string[]; settings: { fontStyle: string } }[] =
+                            userEditorTokenColorCustomizations.textMateRules
 
                         if (userTextMateRules) {
-                            for (const { name, scope: userScope, settings } of userTextMateRules) {
-                                if (name === 'fontStyle bold' && settings && settings.fontStyle === 'bold') {
-                                    const scope = textMateRules.scope
-                                    const items = []
+                            const example = textMateRules[0]
+                            const scope = example.scope
+                            const len = userTextMateRules.length
 
-                                    if (userScope) {
+                            if (len) {
+                                for (let i = 0; i < len; i++) {
+                                    const item = userTextMateRules[i]
+                                    const { name, scope: userScope, settings } = item
+
+                                    if (
+                                        name === 'fontStyle bold' &&
+                                        userScope &&
+                                        settings &&
+                                        new Map(Object.entries(settings)).size === 1 &&
+                                        settings.fontStyle === 'bold'
+                                    ) {
+                                        cacheScope.clear()
                                         const userScopeSet = new Set(userScope)
 
                                         for (const value of scope) {
                                             if (!userScopeSet.has(value)) {
                                                 userScopeSet.add(value)
+                                                cacheScope.add(value)
                                             }
                                         }
-                                    } else {
+
+                                        item.scope = [...userScopeSet]
+                                        break
+                                    } else if (i + 1 === len) {
+                                        userTextMateRules.push(example)
+                                        break
+                                    }
+                                }
+                            } else {
+                                userTextMateRules.push(example)
+                            }
+                        } else {
+                            userEditorTokenColorCustomizations.textMateRules = textMateRules
+                        }
+
+                        changes = userEditorTokenColorCustomizations
+                    } else {
+                        changes = editorTokenColorCustomizations
+                    }
+
+                    if (cacheScope.size) {
+                        cacheManager.updateCache(item, JSON.stringify([...cacheScope])).then(() => {
+                            configurationManager.updateUserConfiguration('editor.tokenColorCustomizations', changes)
+                            console.log(cacheManager.getCache(item))
+                        })
+                    }
+                }
+            },
+            restoreTextMateRules: {
+                method(item) {
+                    const cache = cacheManager.getCache(item)
+
+                    if (cache) {
+                        const cacheScope: Set<string> = new Set(cache && JSON.parse(cache))
+                        let userEditorTokenColorCustomizations = configurationManager.getUserConfiguration('editor.tokenColorCustomizations')
+                        let changes = false
+
+                        if (userEditorTokenColorCustomizations) {
+                            const userTextMateRules: { name: string; scope: string[]; settings: { fontStyle: string } }[] =
+                                userEditorTokenColorCustomizations.textMateRules
+
+                            if (userTextMateRules) {
+                                for (let i = 0, len = userTextMateRules.length; i < len; i++) {
+                                    const item = userTextMateRules[i]
+                                    const { name, scope: userScope, settings } = item
+
+                                    if (
+                                        name === 'fontStyle bold' &&
+                                        userScope &&
+                                        settings &&
+                                        new Map(Object.entries(settings)).size === 1 &&
+                                        settings.fontStyle === 'bold'
+                                    ) {
+                                        const userScopeSet = new Set(userScope)
+
+                                        for (const value of cacheScope) {
+                                            if (userScopeSet.has(value)) {
+                                                userScopeSet.delete(value)
+                                                changes = true
+                                            }
+                                        }
+
+                                        if (changes) {
+                                            if (userScopeSet.size) {
+                                                item.scope = [...userScopeSet]
+                                            } else {
+                                                if (userTextMateRules.length === 1 && new Map(Object.entries(userEditorTokenColorCustomizations)).size === 1) {
+                                                    userEditorTokenColorCustomizations = undefined
+                                                } else {
+                                                    userTextMateRules.splice(i, 1)
+                                                }
+                                            }
+                                        }
+
+                                        break
                                     }
                                 }
                             }
-                        } else {
-                            userEditorTokenColorCustomizations.textMateRules = editorTokenColorCustomizations.textMateRules
                         }
-                    } else {
-                        changes = configuration
-                    }
 
-                    // configurationManager
-                    //     .updateUserConfiguration(
-                    //         new Map(
-                    //             Object.entries({
-                    //                 'editor.tokenColorCustomizations': {
-                    //                     textMateRules: [
-                    //                         {
-                    //                             name: 'fontStyle bold',
-                    //                             scope: ['entity.name.function'],
-                    //                             settings: {
-                    //                                 fontStyle: 'bold'
-                    //                             }
-                    //                         }
-                    //                     ]
-                    //                 }
-                    //             })
-                    //         )
-                    //     )
-                    //     .then(() => {
-                    //         console.log('sec')
-                    //     })
+                        cacheManager.updateCache(item).then(() => {
+                            if (changes) {
+                                configurationManager.updateUserConfiguration('editor.tokenColorCustomizations', userEditorTokenColorCustomizations)
+                            }
+                        })
+                    }
                 }
             }
         })
@@ -281,8 +299,8 @@ const listenerManager = {
             configurationManager.initialize()
             eventManager.initialize()
             transactionManager.initialize()
+            this.lazyloaded = true
         }
-        this.lazyloaded = true
     },
     addListener(type: string, arr: { item: string; changes: object[] }[]): void {
         const map = new Map()
@@ -310,7 +328,7 @@ const listenerManager = {
                     {
                         value: 'on',
                         callback() {
-                            eventManager.execute('mergeUserConfiguration2', {
+                            eventManager.execute('mergeUserConfiguration', {
                                 item: 'barrier-free-theme.experienceMode',
                                 configurationIndex: 'experienceModeOn'
                             })
@@ -319,7 +337,7 @@ const listenerManager = {
                     {
                         value: 'advance',
                         callback() {
-                            eventManager.execute('mergeUserConfiguration2', {
+                            eventManager.execute('mergeUserConfiguration', {
                                 item: 'barrier-free-theme.experienceMode',
                                 configurationIndex: 'experienceModeAdvance'
                             })
@@ -333,7 +351,7 @@ const listenerManager = {
                     {
                         value: undefined,
                         callback() {
-                            // eventManager.execute('setTextMateRules', {
+                            // eventManager.execute('mergeTextMateRules', {
                             //     item: 'barrier-free-theme.bold',
                             //     configurationIndex: 'boldOff'
                             // })
@@ -352,7 +370,7 @@ const listenerManager = {
                     {
                         value: true,
                         callback() {
-                            // eventManager.execute('setTextMateRules', {
+                            // eventManager.execute('mergeTextMateRules', {
                             //     item: 'barrier-free-theme.bold',
                             //     configurationIndex: 'boldOn'
                             // })
