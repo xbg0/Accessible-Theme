@@ -2,7 +2,7 @@
     "name": "barrier-free-theme",
     "displayName": "Barrier-Free Theme",
     "description": "The best theme for you.💪",
-    "version": "0.3.3",
+    "version": "0.4.0",
     "publisher": "xbg",
     "license": "MIT",
     "author": "小饼干 <https://github.com/xbg0>",
@@ -72,10 +72,10 @@
                     ],
                     "description": "%configuration.experienceMode.description%"
                 },
-                "barrier-free-theme.bold": {
+                "barrier-free-theme.fontStyle.bold": {
                     "type": "boolean",
-                    "default": false,
-                    "description": "设置部分代码为粗体"
+                    "default": true,
+                    "description": "%configuration.fontStyle.bold.description%"
                 }
             }
         }

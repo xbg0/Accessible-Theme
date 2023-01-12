@@ -8,5 +8,6 @@
     "configuration.experienceMode.on.description": "Apply basic settings",
     "configuration.experienceMode.advance.label": "Advance",
     "configuration.experienceMode.advance.description": "More settings",
-    "configuration.experienceMode.description": "Add some common settings to your configuration file"
+    "configuration.experienceMode.description": "Add some common settings to your configuration file",
+    "configuration.fontStyle.bold.description": "Add bold display"
 }

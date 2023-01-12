@@ -1,35 +1,7 @@
-import { isDeepStrictEqual } from 'util'
 import * as vscode from 'vscode'
 
-function isEqualArray(item1: any[], item2: any[]) {
-    if (item1.length !== item2.length) return false
-
-    // let left = 0, right = item1.length
-    // for (; left < right; ) {
-    //     const leftValue = item1[left]
-    //     const rightValue = item2[right]
-    //     if (isEqual(leftValue, rightValue)) {
-    //         i++
-    //         return false
-    //     } else {
-
-    //     }
-    // }
-}
-
-function isEqual(item1: any, item2: any): boolean {
-    if (item1 === item2) return true
-    if (Array.isArray(item1) && Array.isArray(item2)) {
-        let i = 0
-        for (const value of item1) {
-            if (!isEqual(value, item2[i++])) {
-                return false
-            }
-        }
-        return true
-    }
-
-    return false
+function isEqual(object1: any, object2: any): boolean {
+    return Object.is(object1, object2)
 }
 
 const cacheManager = {
@@ -82,7 +54,7 @@ const eventManager = {
     },
     initialize(): void {
         this.register({
-            mergeUserConfiguration: {
+            setUserConfiguration: {
                 method({ item, configurationIndex }) {
                     const cache = cacheManager.getCache(item)
                     const cacheConfiguration: Map<string, any> = new Map(cache && JSON.parse(cache))
@@ -94,21 +66,19 @@ const eventManager = {
                         const cacheConfigurationValue = cacheConfiguration.get(section)
                         if (
                             userConfigurationValue === undefined ||
-                            (!isDeepStrictEqual(cacheConfigurationValue, value) && isDeepStrictEqual(userConfigurationValue, cacheConfigurationValue))
+                            (!isEqual(cacheConfigurationValue, value) && isEqual(userConfigurationValue, cacheConfigurationValue))
                         ) {
                             changes.push({ item, section, value })
                         }
                     }
 
                     for (const [section, value] of cacheConfiguration) {
-                        if (!configuration.has(section) && isDeepStrictEqual(value, configurationManager.getUserConfiguration(section))) {
+                        if (!configuration.has(section) && isEqual(value, configurationManager.getUserConfiguration(section))) {
                             changes.push({ item, section, value: undefined })
                         }
                     }
 
                     if (changes.length) {
-                        console.log(changes)
-
                         transactionManager.startTransaction('updateUserConfiguration', changes)
                     }
                 }
@@ -156,24 +126,23 @@ const eventManager = {
                                     const item = userTextMateRules[i]
                                     const { name, scope: userScope, settings } = item
 
-                                    if (
-                                        name === 'fontStyle bold' &&
-                                        userScope &&
-                                        settings &&
-                                        new Map(Object.entries(settings)).size === 1 &&
-                                        settings.fontStyle === 'bold'
-                                    ) {
-                                        cacheScope.clear()
-                                        const userScopeSet = new Set(userScope)
+                                    if (name === 'fontStyle bold' && settings && Object.keys(settings).length === 1 && settings.fontStyle === 'bold') {
+                                        if (userScope) {
+                                            const userScopeSet = new Set(userScope)
+                                            cacheScope.clear()
 
-                                        for (const value of scope) {
-                                            if (!userScopeSet.has(value)) {
-                                                userScopeSet.add(value)
-                                                cacheScope.add(value)
+                                            for (const value of scope) {
+                                                if (!userScopeSet.has(value)) {
+                                                    userScopeSet.add(value)
+                                                    cacheScope.add(value)
+                                                }
                                             }
+
+                                            item.scope = [...userScopeSet]
+                                        } else {
+                                            item.scope = scope
                                         }
 
-                                        item.scope = [...userScopeSet]
                                         break
                                     } else if (i + 1 === len) {
                                         userTextMateRules.push(example)
@@ -195,7 +164,7 @@ const eventManager = {
                     if (cacheScope.size) {
                         cacheManager.updateCache(item, JSON.stringify([...cacheScope])).then(() => {
                             configurationManager.updateUserConfiguration('editor.tokenColorCustomizations', changes)
-                            console.log(cacheManager.getCache(item))
+                            // console.log(cacheManager.getCache(item))
                         })
                     }
                 }
@@ -205,9 +174,9 @@ const eventManager = {
                     const cache = cacheManager.getCache(item)
 
                     if (cache) {
-                        const cacheScope: Set<string> = new Set(cache && JSON.parse(cache))
+                        const cacheScope: Set<string> = new Set(JSON.parse(cache))
                         let userEditorTokenColorCustomizations = configurationManager.getUserConfiguration('editor.tokenColorCustomizations')
-                        let changes = false
+                        let isChanged = false
 
                         if (userEditorTokenColorCustomizations) {
                             const userTextMateRules: { name: string; scope: string[]; settings: { fontStyle: string } }[] =
@@ -218,32 +187,33 @@ const eventManager = {
                                     const item = userTextMateRules[i]
                                     const { name, scope: userScope, settings } = item
 
-                                    if (
-                                        name === 'fontStyle bold' &&
-                                        userScope &&
-                                        settings &&
-                                        new Map(Object.entries(settings)).size === 1 &&
-                                        settings.fontStyle === 'bold'
-                                    ) {
-                                        const userScopeSet = new Set(userScope)
+                                    if (name === 'fontStyle bold' && settings && Object.keys(settings).length === 1 && settings.fontStyle === 'bold') {
+                                        if (userScope) {
+                                            const userScopeSet = new Set(userScope)
 
-                                        for (const value of cacheScope) {
-                                            if (userScopeSet.has(value)) {
-                                                userScopeSet.delete(value)
-                                                changes = true
+                                            for (const value of cacheScope) {
+                                                if (userScopeSet.has(value)) {
+                                                    userScopeSet.delete(value)
+                                                    isChanged = true
+                                                }
+                                            }
+
+                                            if (isChanged) {
+                                                item.scope = [...userScopeSet]
                                             }
                                         }
 
-                                        if (changes) {
-                                            if (userScopeSet.size) {
-                                                item.scope = [...userScopeSet]
-                                            } else {
-                                                if (userTextMateRules.length === 1 && new Map(Object.entries(userEditorTokenColorCustomizations)).size === 1) {
+                                        if (!userScope || !item.scope.length) {
+                                            if (userTextMateRules.length === 1) {
+                                                if (Object.keys(userEditorTokenColorCustomizations).length === 1) {
                                                     userEditorTokenColorCustomizations = undefined
                                                 } else {
-                                                    userTextMateRules.splice(i, 1)
+                                                    userEditorTokenColorCustomizations.textMateRules = undefined
                                                 }
+                                            } else {
+                                                userTextMateRules.splice(i, 1)
                                             }
+                                            isChanged = true
                                         }
 
                                         break
@@ -253,10 +223,26 @@ const eventManager = {
                         }
 
                         cacheManager.updateCache(item).then(() => {
-                            if (changes) {
+                            if (isChanged) {
                                 configurationManager.updateUserConfiguration('editor.tokenColorCustomizations', userEditorTokenColorCustomizations)
                             }
                         })
+                    }
+                }
+            },
+            applyConfiguration: {
+                method() {
+                    const cache = cacheManager.getCache('barrier-free-theme.fontStyle.bold')
+
+                    if (!cache) {
+                        const configuration = configurationManager.getUserConfiguration('barrier-free-theme.fontStyle.bold')
+
+                        if (!configuration) {
+                            eventManager.execute('mergeTextMateRules', {
+                                item: 'barrier-free-theme.fontStyle.bold',
+                                configurationIndex: 'fontStyleBold'
+                            })
+                        }
                     }
                 }
             }
@@ -296,9 +282,6 @@ const listenerManager = {
     },
     lazyload(): void {
         if (!this.lazyloaded) {
-            configurationManager.initialize()
-            eventManager.initialize()
-            transactionManager.initialize()
             this.lazyloaded = true
         }
     },
@@ -328,7 +311,7 @@ const listenerManager = {
                     {
                         value: 'on',
                         callback() {
-                            eventManager.execute('mergeUserConfiguration', {
+                            eventManager.execute('setUserConfiguration', {
                                 item: 'barrier-free-theme.experienceMode',
                                 configurationIndex: 'experienceModeOn'
                             })
@@ -337,7 +320,7 @@ const listenerManager = {
                     {
                         value: 'advance',
                         callback() {
-                            eventManager.execute('mergeUserConfiguration', {
+                            eventManager.execute('setUserConfiguration', {
                                 item: 'barrier-free-theme.experienceMode',
                                 configurationIndex: 'experienceModeAdvance'
                             })
@@ -346,44 +329,21 @@ const listenerManager = {
                 ]
             },
             {
-                item: 'barrier-free-theme.bold',
+                item: 'barrier-free-theme.fontStyle.bold',
                 changes: [
                     {
                         value: undefined,
                         callback() {
-                            // eventManager.execute('mergeTextMateRules', {
-                            //     item: 'barrier-free-theme.bold',
-                            //     configurationIndex: 'boldOff'
-                            // })
-                            transactionManager.startTransaction('updateUserConfiguration', [
-                                { item: 'barrier-free-theme.experienceMode', section: 'editor.foldingHighlight', value: undefined },
-                                { item: 'barrier-free-theme.experienceMode', section: 'editor.hideCursorInOverviewRuler', value: undefined },
-                                { item: 'barrier-free-theme.experienceMode', section: 'editor.smoothScrolling', value: undefined },
-                                { item: 'barrier-free-theme.experienceMode', section: 'workbench.list.smoothScrolling', value: undefined },
-                                { item: 'barrier-free-theme.experienceMode', section: 'editor.scrollbar.verticalScrollbarSize', value: undefined },
-                                { item: 'barrier-free-theme.experienceMode', section: 'breadcrumbs.enabled', value: undefined },
-                                { item: 'barrier-free-theme.experienceMode', section: 'editor.minimap.enabled', value: undefined },
-                                { item: 'barrier-free-theme.experienceMode', section: 'search.maxResults', value: undefined }
-                            ])
+                            eventManager.execute('mergeTextMateRules', {
+                                item: 'barrier-free-theme.fontStyle.bold',
+                                configurationIndex: 'fontStyleBold'
+                            })
                         }
                     },
                     {
-                        value: true,
+                        value: false,
                         callback() {
-                            // eventManager.execute('mergeTextMateRules', {
-                            //     item: 'barrier-free-theme.bold',
-                            //     configurationIndex: 'boldOn'
-                            // })
-                            transactionManager.startTransaction('updateUserConfiguration', [
-                                { item: 'barrier-free-theme.experienceMode', section: 'editor.foldingHighlight', value: false },
-                                { item: 'barrier-free-theme.experienceMode', section: 'editor.hideCursorInOverviewRuler', value: true },
-                                { item: 'barrier-free-theme.experienceMode', section: 'editor.smoothScrolling', value: true },
-                                { item: 'barrier-free-theme.experienceMode', section: 'workbench.list.smoothScrolling', value: true },
-                                { item: 'barrier-free-theme.experienceMode', section: 'editor.scrollbar.verticalScrollbarSize', value: 24 },
-                                { item: 'barrier-free-theme.experienceMode', section: 'breadcrumbs.enabled', value: false },
-                                { item: 'barrier-free-theme.experienceMode', section: 'editor.minimap.enabled', value: false },
-                                { item: 'barrier-free-theme.experienceMode', section: 'search.maxResults', value: 100 }
-                            ])
+                            eventManager.execute('restoreTextMateRules', 'barrier-free-theme.fontStyle.bold')
                         }
                     }
                 ]
@@ -418,7 +378,7 @@ const configurationManager = {
 
         for (const [key, value] of configuration) {
             const userConfigurationValue = this.getUserConfiguration(key)
-            if (userConfigurationValue === undefined || isDeepStrictEqual(userConfigurationValue, value)) {
+            if (userConfigurationValue === undefined || isEqual(userConfigurationValue, value)) {
                 result.set(key, value)
             }
         }
@@ -446,25 +406,12 @@ const configurationManager = {
             'editor.stickyScroll.enabled': true,
             'workbench.list.smoothScrolling': true
         })
-        this.setCustomConfiguration('boldOn', {
+        this.setCustomConfiguration('fontStyleBold', {
             'editor.tokenColorCustomizations': {
                 textMateRules: [
                     {
                         name: 'fontStyle bold',
-                        scope: ['constant', 'entity.name.function'],
-                        settings: {
-                            fontStyle: 'bold'
-                        }
-                    }
-                ]
-            }
-        })
-        this.setCustomConfiguration('boldOff', {
-            'editor.tokenColorCustomizations': {
-                textMateRules: [
-                    {
-                        name: 'fontStyle bold',
-                        scope: [],
+                        scope: ['constant', 'entity.name.function', 'meta.function-call.python'],
                         settings: {
                             fontStyle: 'bold'
                         }
@@ -559,7 +506,7 @@ const transactionManager = {
             },
             rejected({ item, section, value }: { item: string; section: string; value: any }, error: string) {
                 vscode.window.showErrorMessage(error)
-                console.log('Transaction: updateUserConfiguration failed: ', section, value)
+                // console.log('Transaction: updateUserConfiguration failed: ', section, value)
             },
             resolved({ item, section, value }: { item: string; section: string; value: any }) {
                 // cacheManager.updateCacheWithMap(item, new Map([[section, value]])).then(() => {
@@ -575,12 +522,12 @@ const transactionManager = {
                 }
 
                 for (const { section, value } of failed) {
-                    if (isDeepStrictEqual(value, configurationManager.getUserConfiguration(section))) configuration.set(section, value)
+                    if (isEqual(value, configurationManager.getUserConfiguration(section))) configuration.set(section, value)
                 }
 
                 if (configuration.size) {
                     cacheManager.updateCacheWithMap(item, configuration).then(() => {
-                        console.log('Transaction: succeeded', new Map(JSON.parse(cacheManager.getCache(item) as string)).size)
+                        // console.log('Transaction: succeeded', new Map(JSON.parse(cacheManager.getCache(item) as string)).size)
                     })
                 }
             }
@@ -592,15 +539,16 @@ const Controller = {
     activate(context: vscode.ExtensionContext): void {
         cacheManager.initialize(context)
         listenerManager.initialize()
-        console.log('Initialized:', cacheManager.getCache('barrier-free-theme.experienceMode'))
-        // cacheManager
-        //     .updateCache('barrier-free-theme.experienceMode')
-        //     .then(() => console.log('Initialized: ', cacheManager.getCache('barrier-free-theme.experienceMode')))
+        configurationManager.initialize()
+        eventManager.initialize()
+        transactionManager.initialize()
+        eventManager.execute('applyConfiguration')
+        // console.log('Initialized:', cacheManager.getCache('barrier-free-theme.fontStyle.bold'))
     },
 
     deactivate(context: vscode.ExtensionContext): void {
         context.subscriptions.push(...listenerManager.recycleBin)
-        console.log('Deactivated:', cacheManager.getCache('barrier-free-theme.experienceMode'))
+        // console.log('Deactivated:', cacheManager.getCache('barrier-free-theme.fontStyle.bold'))
     }
 }
 

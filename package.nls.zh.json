@@ -8,5 +8,6 @@
     "configuration.experienceMode.on.description": "应用基础设置",
     "configuration.experienceMode.advance.label": "高级",
     "configuration.experienceMode.advance.description": "更多设置",
-    "configuration.experienceMode.description": "添加一些常用设置到你的配置文件中"
+    "configuration.experienceMode.description": "添加一些常用设置到你的配置文件中",
+    "configuration.fontStyle.bold.description": "增加粗体显示"
 }
