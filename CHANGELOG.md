@@ -1,3 +1,9 @@
+# 0.4.0
+
+## Font Style: Bold
+
+### Add bold display
+
 # 0.3.0
 
 ## Experience Mode

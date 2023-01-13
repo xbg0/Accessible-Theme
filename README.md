@@ -10,7 +10,7 @@ Wish you like it 👏
 
 # Screenshot
 
-![Screenshot](https://z4a.net/images/2023/01/01/Screenshot.jpg)
+![Screenshot](https://z4a.net/images/2023/01/13/Screenshot.jpg)
 
 # New Feature
 

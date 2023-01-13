@@ -126,7 +126,7 @@ const eventManager = {
                                     const item = userTextMateRules[i]
                                     const { name, scope: userScope, settings } = item
 
-                                    if (name === 'fontStyle bold' && settings && Object.keys(settings).length === 1 && settings.fontStyle === 'bold') {
+                                    if (name === 'Font Style: Bold' && settings && Object.keys(settings).length === 1 && settings.fontStyle === 'bold') {
                                         if (userScope) {
                                             const userScopeSet = new Set(userScope)
                                             cacheScope.clear()
@@ -187,7 +187,7 @@ const eventManager = {
                                     const item = userTextMateRules[i]
                                     const { name, scope: userScope, settings } = item
 
-                                    if (name === 'fontStyle bold' && settings && Object.keys(settings).length === 1 && settings.fontStyle === 'bold') {
+                                    if (name === 'Font Style: Bold' && settings && Object.keys(settings).length === 1 && settings.fontStyle === 'bold') {
                                         if (userScope) {
                                             const userScopeSet = new Set(userScope)
 
@@ -397,7 +397,6 @@ const configurationManager = {
             'workbench.list.smoothScrolling': true
         })
         this.setCustomConfiguration('experienceModeAdvance', {
-            'breadcrumbs.enabled': false,
             'editor.minimap.enabled': false,
             'editor.foldingHighlight': false,
             'editor.hideCursorInOverviewRuler': true,
@@ -410,7 +409,7 @@ const configurationManager = {
             'editor.tokenColorCustomizations': {
                 textMateRules: [
                     {
-                        name: 'fontStyle bold',
+                        name: 'Font Style: Bold',
                         scope: ['constant', 'entity.name.function', 'meta.function-call.python'],
                         settings: {
                             fontStyle: 'bold'
