@@ -1,17 +1,20 @@
-# 0.4.0
+# Thank you for waiting
 
-## Font Style: Bold
+## 0.4.2
 
-### Add bold display
+- Update Galaxy theme
+- Improve Markdown preview
 
-# 0.3.0
+## 0.4.0
 
-## Experience Mode
+- Add bold display
 
-### Add some common settings to your configuration file
+## 0.3.0
 
-# 0.2.0
+- Experience Mode
+    Add some common settings to your configuration file
 
-## Midnight Theme
+## 0.2.0
 
-### It's good for overtime work 😂
+- Add Midnight theme
+   It's good for overtime work 😂

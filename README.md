@@ -8,9 +8,9 @@ The themes are designed around an immersion experience. ✨
 
 Wish you like it 👏
 
-# Screenshot
+# Screenshots
 
-![Screenshot](https://z4a.net/images/2023/01/13/Screenshot.jpg)
+![Galaxy Theme](https://p0.ssl.qhmsg.com/dr/1440__85/t01bf2225abd5da59ef.jpg)
 
 # New Feature
 
@@ -20,8 +20,8 @@ Wish you like it 👏
 
 ### Add some common settings to your configuration file
 
-![Experience Mode](https://z4a.net/images/2022/12/30/1.gif)
+![Experience Mode](https://p0.ssl.qhmsg.com/t0169255ccc165f9cae.gif)
 
 # License
 
-[MIT](./LICENSE) License © 2022-Present [小饼干](https://github.com/xbg0)
+[MIT](./LICENSE) License © 2022-Present [xbg](https://github.com/xbg0)

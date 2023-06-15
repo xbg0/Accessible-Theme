@@ -1,6 +1,6 @@
 src
 .vscode
 test
-out/**.js.map
+dist/**.js.map
 .gitignore
 tsconfig.json

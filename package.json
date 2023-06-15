@@ -1,28 +1,20 @@
 {
     "name": "barrier-free-theme",
     "displayName": "Barrier-Free Theme",
-    "description": "The best theme for you.💪",
-    "version": "0.4.1",
+    "description": "A comfortable and concise theme",
+    "version": "0.4.2",
     "publisher": "xbg",
     "license": "MIT",
-    "author": "小饼干 <https://github.com/xbg0>",
-    "contributors": [
-        "欢迎加入我们 / Welcome to join us"
-    ],
-    "bugs": {
-        "url": "https://github.com/xbg0/Barrier-Free-Theme/issues",
-        "email": "xbg0@qq.com"
-    },
-    "homepage": "https://github.com/xbg0/Barrier-Free-Theme",
+    "bugs": "https://github.com/xbg0/Barrier-Free-Theme/issues",
     "repository": {
         "type": "git",
         "url": "https://github.com/xbg0/Barrier-Free-Theme.git"
     },
     "engines": {
-        "vscode": "^1.74.0"
+        "vscode": "^1.79.0"
     },
-    "main": "./out/extension.js",
-    "browser": "./out/extension.js",
+    "main": "./dist/extension.js",
+    "browser": "./dist/extension.js",
     "activationEvents": [
         "onStartupFinished"
     ],
@@ -35,12 +27,22 @@
         "workspace"
     ],
     "contributes": {
+        "markdown.markdownItPlugins": true,
+        "markdown.previewStyles": [
+            "./themes/markdown/Base.css"
+        ],
         "themes": [
             {
                 "id": "Barrier-Free Theme - Galaxy",
                 "label": "%theme.galaxy%",
                 "uiTheme": "vs-dark",
                 "path": "./themes/Galaxy.json"
+            },
+            {
+                "id": "Barrier-Free Theme - Galaxy Flat",
+                "label": "%theme.galaxy_flat%",
+                "uiTheme": "vs-dark",
+                "path": "./themes/Galaxy-Flat.json"
             },
             {
                 "id": "Barrier-Free Theme - Midnight",
@@ -81,8 +83,8 @@
         }
     },
     "keywords": [
-        "无障碍",
-        "无障碍主题",
+        "comfortable theme",
+        "concise theme",
         "barrier free",
         "barrier-free theme"
     ],
@@ -93,21 +95,15 @@
     "scripts": {
         "vscode:prepublish": "npm run compile",
         "compile": "tsc -p ./",
-        "lint": "eslint \"src/**/*.ts\"",
+        "lint": "eslint src --ext ts",
         "watch": "tsc -watch -p ./"
     },
     "devDependencies": {
-        "@types/node": "^16.11.7",
-        "@types/vscode": "^1.74.0",
-        "@typescript-eslint/eslint-plugin": "^5.42.0",
-        "@typescript-eslint/parser": "^5.42.0",
-        "eslint": "^8.26.0",
-        "typescript": "^4.8.4"
-    },
-    "__metadata": {
-        "id": "e95b700c-99cc-4a01-91aa-90e92a09bdd9",
-        "publisherDisplayName": "小饼干",
-        "publisherId": "04fd8aee-543e-4679-90f3-b0eb5c50791d",
-        "isPreReleaseVersion": false
+        "@types/node": "^20.2.5",
+        "@types/vscode": "^1.79.0",
+        "@typescript-eslint/eslint-plugin": "^5.59.8",
+        "@typescript-eslint/parser": "^5.59.8",
+        "eslint": "^8.41.0",
+        "typescript": "^5.1.3"
     }
 }
