@@ -16,5 +16,4 @@
 
 ## 0.2.0
 
-- Add Midnight theme  
-  It's good for overtime work 😂
+- Add Midnight theme
