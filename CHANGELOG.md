@@ -11,10 +11,10 @@
 
 ## 0.3.0
 
-- Experience Mode
-    Add some common settings to your configuration file
+- Experience Mode  
+  Add some common settings to your configuration file
 
 ## 0.2.0
 
-- Add Midnight theme
-   It's good for overtime work 😂
+- Add Midnight theme  
+  It's good for overtime work 😂

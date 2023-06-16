@@ -8,20 +8,19 @@ The themes are designed around an immersion experience. ✨
 
 Wish you like it 👏
 
-# Screenshots
+## Screenshots
 
-![Galaxy Theme](https://p0.ssl.qhmsg.com/dr/1440__85/t01bf2225abd5da59ef.jpg)
+![Galaxy Theme](https://mtw.so/6gfkkE)
 
-# New Feature
+## New Feature
 
-## 体验模式 Experience Mode
+### 体验模式 Experience Mode
 
-### 添加一些常用设置到你的配置文件中
+添加一些常用设置到你的配置文件中  
+Add some common settings to your configuration file
 
-### Add some common settings to your configuration file
+![Experience Mode](https://mtw.so/61cWQq)
 
-![Experience Mode](https://p0.ssl.qhmsg.com/t0169255ccc165f9cae.gif)
+## License
 
-# License
-
-[MIT](./LICENSE) License © 2022-Present [xbg](https://github.com/xbg0)
+[MIT License](./LICENSE.md) © 2022-Present [xbg](https://github.com/xbg0)
