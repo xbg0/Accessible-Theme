@@ -10,7 +10,7 @@ Wish you like it 👏
 
 ## Screenshots
 
-![Galaxy Theme](https://mtw.so/6gfkkE)
+![Galaxy Theme](https://mtw.so/5DVqQo)
 
 ## New Feature
 
