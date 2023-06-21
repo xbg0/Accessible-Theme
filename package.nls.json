@@ -1,8 +1,8 @@
 {
+    "extension.name": "Barrier-Free Theme",
     "theme.galaxy": "Barrier-Free Theme - Galaxy",
     "theme.galaxy_flat": "Barrier-Free Theme - Galaxy Flat",
     "theme.midnight": "Barrier-Free Theme - Midnight",
-    "configuration.title": "Barrier-Free Theme",
     "configuration.experienceMode.off.label": "Turn off",
     "configuration.experienceMode.off.description": "Restore the settings and keep your custom settings",
     "configuration.experienceMode.on.label": "Turn on",
@@ -10,5 +10,7 @@
     "configuration.experienceMode.advance.label": "Advance",
     "configuration.experienceMode.advance.description": "More settings",
     "configuration.experienceMode.description": "Add some common settings to your configuration file",
-    "configuration.fontStyle.bold.description": "Add bold display"
+    "configuration.fontStyle.bold.description": "Enable bold display",
+    "command.enableBoldDisplay": "Enable Bold Display",
+    "command.disableBoldDisplay": "Disable Bold Display"
 }

@@ -1,5 +1,9 @@
 # Thank you for waiting
 
+## 0.4.5
+
+- Support bold display of command calls
+
 ## 0.4.2
 
 - Update Galaxy theme
@@ -7,7 +11,7 @@
 
 ## 0.4.0
 
-- Add bold display
+- Support bold display
 
 ## 0.3.0
 
