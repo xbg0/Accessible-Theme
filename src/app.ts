@@ -39,7 +39,8 @@ queueManager.addQueue('updateUserConfig', {
     }
 })
 
-type configSet = { [propName: string]: Map<string, any> }
+type configSetType = { [propName: string]: Map<string, any> }
+type configChangesType = { item: string, section: string, value: any }[]
 
 eventManager
     .addEvent('setUserConfig', {
@@ -64,52 +65,70 @@ eventManager
                     'workbench.list.smoothScrolling': true
                 })
             )
-        } as configSet,
-        method(defaultArgs: configSet, item: string, configIndex: string) {
+        } as configSetType,
+        method(defaultArgs: configSetType, item: string, configIndex: string) {
             const cache = cacheManager.getCache(item)
             const cacheConfig: Map<string, any> = new Map(cache && JSON.parse(cache))
             const config = defaultArgs[configIndex]
-            const changes: object[] = []
+            const configChanges: configChangesType = []
+            const cacheChanges: Map<string, any> = new Map()
 
             for (const [section, value] of config) {
-                const userConfigValue = configManager.getUserConfig(section)
                 const cacheConfigValue = cacheConfig.get(section)
-                if (
-                    userConfigValue === undefined ||
-                    (!Object.is(cacheConfigValue, value) && Object.is(userConfigValue, cacheConfigValue))
-                ) {
-                    changes.push({ item, section, value })
+                if (cacheConfigValue) {
+                    if (Object.is(configManager.getUserConfig(section), cacheConfigValue)) {
+                        if (!Object.is(cacheConfigValue, value)) {
+                            configChanges.push({ item, section, value })
+                        }
+                    } else {
+                        cacheChanges.set(section, undefined)
+                    }
+                } else if (configManager.isDefaultConfig(section)) {
+                    configChanges.push({ item, section, value })
                 }
             }
 
             for (const [section, value] of cacheConfig) {
-                if (!config.has(section) && Object.is(value, configManager.getUserConfig(section))) {
-                    changes.push({ item, section, value: undefined })
+                if (!config.has(section)) {
+                    if (Object.is(configManager.getUserConfig(section), value)) {
+                        configChanges.push({ item, section, value: undefined })
+                    } else {
+                        cacheChanges.set(section, undefined)
+                    }
                 }
             }
 
-            if (changes.length) {
-                queueManager.startQueue('updateUserConfig', changes)
+            if (cacheChanges.size) {
+                cacheManager.updateCacheWithMap(item, cacheChanges)
+            }
+            if (configChanges.length) {
+                queueManager.startQueue('updateUserConfig', configChanges)
             }
         }
     })
     .addEvent('restoreUserConfig', {
         method(item: string) {
             const cache = cacheManager.getCache(item)
-            const changes = []
 
             if (cache) {
                 const cacheConfig: Map<string, any> = new Map(JSON.parse(cache))
+                const configChanges: configChangesType = []
+                const cacheChanges: Map<string, any> = new Map()
 
                 for (const [section, value] of cacheConfig) {
-                    if (configManager.getUserConfig(section) === value) {
-                        changes.push({ item, section, value: undefined })
+                    if (Object.is(configManager.getUserConfig(section), value)) {
+                        configChanges.push({ item, section, value: undefined })
+                    } else {
+                        cacheChanges.set(section, undefined)
                     }
                 }
-            }
 
-            if (changes.length) {
-                queueManager.startQueue('updateUserConfig', changes)
+                if (cacheChanges.size) {
+                    cacheManager.updateCacheWithMap(item, cacheChanges)
+                }
+                if (configChanges.length) {
+                    queueManager.startQueue('updateUserConfig', configChanges)
+                }
             }
         }
     })
@@ -130,12 +149,19 @@ eventManager
                     }
                 })
             )
-        } as configSet,
-        method(defaultArgs: configSet, item: string, configIndex: string) {
+        } as configSetType,
+        method(defaultArgs: configSetType, item: string, configIndex: string) {
             const config = defaultArgs[configIndex]
             const editorTokenColorCustomizations = config.get('editor.tokenColorCustomizations')
             const userEditorTokenColorCustomizations = configManager.getUserConfig('editor.tokenColorCustomizations')
-            const cacheScope: Set<string> = new Set(editorTokenColorCustomizations.textMateRules[0].scope)
+            const cacheScope: Set<string> = (() => {
+                for (const { name, scope } of editorTokenColorCustomizations.textMateRules) {
+                    if (name === 'Font Style: Bold') {
+                        return new Set(scope)
+                    }
+                }
+                return new Set()
+            })()
             let changes: null | object = null
 
             if (userEditorTokenColorCustomizations) {
@@ -257,16 +283,12 @@ eventManager
             }
         }
     })
-    .addEvent('applyConfig', {
+    .addEvent('activate', {
         method() {
-            const cache = cacheManager.getCache('barrier-free-theme.fontStyle.bold')
+            const isBoldDisplay: undefined | false = configManager.getUserConfig('barrier-free-theme.fontStyle.bold')
 
-            if (!cache) {
-                const config = configManager.getUserConfig('barrier-free-theme.fontStyle.bold')
-
-                if (!config) {
-                    eventManager.executeEvent('mergeTextMateRules', 'barrier-free-theme.fontStyle.bold', 'fontStyleBold')
-                }
+            if (isBoldDisplay === undefined) {
+                eventManager.executeEvent('mergeTextMateRules', 'barrier-free-theme.fontStyle.bold', 'fontStyleBold')
             }
         }
     })
@@ -281,13 +303,13 @@ listenerManager
 
                     switch (configValue) {
                         case undefined:
-                            eventManager.executeEvent('restoreUserConfiguration', 'barrier-free-theme.experienceMode')
+                            eventManager.executeEvent('restoreUserConfig', 'barrier-free-theme.experienceMode')
                             break
                         case 'on':
-                            eventManager.executeEvent('setUserConfiguration', 'barrier-free-theme.experienceMode', 'experienceModeOn')
+                            eventManager.executeEvent('setUserConfig', 'barrier-free-theme.experienceMode', 'experienceModeOn')
                             break
                         case 'advance':
-                            eventManager.executeEvent('setUserConfiguration', 'barrier-free-theme.experienceMode', 'experienceModeAdvance')
+                            eventManager.executeEvent('setUserConfig', 'barrier-free-theme.experienceMode', 'experienceModeAdvance')
                     }
                 }
             },
@@ -336,11 +358,9 @@ listenerManager
 
 exports.activate = (context: ExtensionContext): void => {
     controller.initialize(context)
-    eventManager.executeEvent('applyConfig')
-    // console.log('Initialized:', cacheManager.getCache('barrier-free-theme.fontStyle.bold'))
+    eventManager.executeEvent('activate')
 }
 
-exports.deactivate = (context: ExtensionContext): void => {
-    context.subscriptions.push(...controller.recoverer)
-    // console.log('Deactivated:', cacheManager.getCache('barrier-free-theme.fontStyle.bold'))
-}
+// exports.deactivate = (context: ExtensionContext): void => {
+//     context.subscriptions.push(...controller.recoverer)
+// }

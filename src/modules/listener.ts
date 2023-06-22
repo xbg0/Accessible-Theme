@@ -1,12 +1,11 @@
 import { Disposable } from 'vscode';
-import controller from './controller'
 
-type listener = { status: { item: string, callback: (...args: any) => void }[], register(item: string, callback: (...args: any) => void): Disposable }
+type listenerType = { status: { item: string, callback: (...args: any) => void }[], register(item: string, callback: (...args: any) => void): Disposable }
 
 const listenerManager = {
-    addListener({ status, register }: listener) {
+    addListener({ status, register }: listenerType) {
         for (const { item, callback } of status) {
-            controller.addRecoverer(register(item, callback))
+            register(item, callback)
         }
         return this
     }

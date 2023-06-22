@@ -12,7 +12,8 @@ const appConfig = {
     entry: './src/app.ts',
     output: {
         filename: 'app.js',
-        path: path.resolve(__dirname, 'dist')
+        path: path.resolve(__dirname, 'dist'),
+        libraryTarget: 'commonjs2'
     },
     externals: {
         vscode: 'commonjs vscode'

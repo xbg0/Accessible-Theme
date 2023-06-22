@@ -1,7 +1,4 @@
 import { workspace } from 'vscode'
-import controller from './controller'
-
-type configType = Map<string, any>
 
 const configManager = {
     getUserConfig(section: string): any {

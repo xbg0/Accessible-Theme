@@ -1,4 +1,4 @@
-type eventType = { defaultArgs?: any; method(...arg: any): any }
+type eventType = { defaultArgs?: any; method(...arg: any): void }
 
 const storage = {
 } as {
