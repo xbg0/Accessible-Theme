@@ -13,13 +13,13 @@ const appConfig = {
     output: {
         filename: 'app.js',
         path: path.resolve(__dirname, 'dist'),
-        libraryTarget: 'commonjs2'
+        libraryTarget: 'commonjs2',
     },
     externals: {
-        vscode: 'commonjs vscode'
+        vscode: 'commonjs vscode',
     },
     resolve: {
-        extensions: ['.ts']
+        extensions: ['.ts'],
     },
     module: {
         rules: [
@@ -28,13 +28,13 @@ const appConfig = {
                 exclude: /node_modules/,
                 use: [
                     {
-                        loader: 'ts-loader'
-                    }
-                ]
-            }
-        ]
+                        loader: 'ts-loader',
+                    },
+                ],
+            },
+        ],
     },
-    devtool: 'nosources-source-map'
+    devtool: 'nosources-source-map',
 };
 
 module.exports = [appConfig];

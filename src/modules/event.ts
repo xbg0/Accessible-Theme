@@ -1,23 +1,18 @@
 type eventType = { defaultArgs?: any; method(...arg: any): void }
 
-const storage = {
-} as {
+const storage: {
     [eventName: string]: eventType
-}
+} = {}
 
-const eventManager = {
-    executeEvent(event: string, ...args: any): void {
-        const { defaultArgs, method } = storage[event] as eventType
-        if (defaultArgs) {
-            method(defaultArgs, ...args)
-        } else {
-            method(...args)
-        }
-    },
-    addEvent(event: string, options: eventType) {
-        storage[event] = options
-        return this
+export const executeEvent = (event: string, ...args: any) => {
+    const { defaultArgs, method } = storage[event] as eventType
+    if (defaultArgs) {
+        method(defaultArgs, ...args)
+    } else {
+        method(...args)
     }
 }
 
-export default eventManager
+export const addEvent = (event: string, options: eventType) => {
+    storage[event] = options
+}

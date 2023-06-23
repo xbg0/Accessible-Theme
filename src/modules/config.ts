@@ -1,15 +1,16 @@
 import { workspace } from 'vscode'
 
-const configManager = {
-    getUserConfig(section: string): any {
-        return workspace.getConfiguration().inspect(section)?.globalValue
-    },
-    async updateUserConfig(section: string, value: any): Promise<void> {
-        await workspace.getConfiguration().update(section, value, true)
-    },
-    isDefaultConfig(section: string): boolean {
-        return this.getUserConfig(section) === undefined
-    }
+export const getUserConfig = (section: string): any => {
+    return workspace.getConfiguration().inspect(section)?.globalValue
 }
 
-export default configManager
+export const updateUserConfig = async (
+    section: string,
+    value: any
+): Promise<void> => {
+    await workspace.getConfiguration().update(section, value, true)
+}
+
+export const isDefaultConfig = (section: string): boolean => {
+    return getUserConfig(section) === undefined
+}

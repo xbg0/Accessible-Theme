@@ -1,17 +1,11 @@
-import { ExtensionContext, Disposable } from 'vscode'
+import { ExtensionContext } from 'vscode'
 
-const controller = {
-    context: {} as ExtensionContext,
-    recoverer: [] as Disposable[],
-    getContext(): ExtensionContext {
-        return this.context
-    },
-    // addRecoverer(item: Disposable) {
-    //     this.recoverer.push(item)
-    // },
-    initialize(context: ExtensionContext): void {
-        this.context = context
-    }
+let context = {} as ExtensionContext
+
+export const getContext = (): ExtensionContext => {
+    return context
 }
 
-export default controller
+export const initialize = (ct: ExtensionContext) => {
+    context = ct
+}

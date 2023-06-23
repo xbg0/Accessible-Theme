@@ -1,26 +1,27 @@
-import controller from './controller'
+import { getContext } from './controller'
 
-const cacheManager = {
-    getCache(key: string): string | undefined {
-        return controller.getContext().globalState.get(key)
-    },
-    updateCache(key: string, value?: string): Thenable<void> {
-        return controller.getContext().globalState.update(key, value)
-    },
-    updateCacheWithMap(key: string, map: Map<string, any>): Thenable<void> {
-        const cache = this.getCache(key)
-        const cacheMap: Map<string, any> = new Map(cache && JSON.parse(cache))
-
-        for (const [section, value] of map) {
-            if (value === undefined) {
-                cacheMap.delete(section)
-            } else {
-                cacheMap.set(section, value)
-            }
-        }
-
-        return this.updateCache(key, JSON.stringify([...cacheMap]))
-    }
+export const getCache = (key: string): string | undefined => {
+    return getContext().globalState.get(key)
 }
 
-export default cacheManager
+export const updateCache = (key: string, value?: string): Thenable<void> => {
+    return getContext().globalState.update(key, value)
+}
+
+export const updateCacheWithMap = (
+    key: string,
+    map: Map<string, any>
+): Thenable<void> => {
+    const cache = getCache(key)
+    const cacheMap: Map<string, any> = new Map(cache && JSON.parse(cache))
+
+    for (const [section, value] of map) {
+        if (value === undefined) {
+            cacheMap.delete(section)
+        } else {
+            cacheMap.set(section, value)
+        }
+    }
+
+    return updateCache(key, JSON.stringify([...cacheMap]))
+}

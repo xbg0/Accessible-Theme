@@ -1,14 +1,10 @@
-import { Disposable } from 'vscode';
-
-type listenerType = { status: { item: string, callback: (...args: any) => void }[], register(item: string, callback: (...args: any) => void): Disposable }
-
-const listenerManager = {
-    addListener({ status, register }: listenerType) {
-        for (const { item, callback } of status) {
-            register(item, callback)
-        }
-        return this
-    }
+type listenerType<T> = {
+    status: { item: T; callback: (...args: any) => void }[]
+    register(item: string, callback: (...args: any) => void): void
 }
 
-export default listenerManager
+export const addListener = <T>({ status, register }: listenerType<T>) => {
+    for (const { item, callback } of status) {
+        register(item as string, callback)
+    }
+}
